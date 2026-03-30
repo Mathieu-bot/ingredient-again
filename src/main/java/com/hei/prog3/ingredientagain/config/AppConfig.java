@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
 
     @Bean
-    public DataSource dataSource() {
-        return new DataSource();
+    public DataSourceConfig dataSourceConfig() {
+        return new DataSourceConfig();
     }
 
     @Bean
-    public IngredientRepository ingredientRepository(DataSource dataSource) {
-        return new JdbcIngredientRepository(dataSource);
+    public IngredientRepository ingredientRepository(DataSourceConfig dataSourceConfig) {
+        return new JdbcIngredientRepository(dataSourceConfig);
     }
 }

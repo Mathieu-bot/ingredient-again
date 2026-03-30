@@ -1,6 +1,6 @@
 package com.hei.prog3.ingredientagain.repository.impl;
 
-import com.hei.prog3.ingredientagain.config.DataSource;
+import com.hei.prog3.ingredientagain.config.DataSourceConfig;
 import com.hei.prog3.ingredientagain.entity.CategoryEnum;
 import com.hei.prog3.ingredientagain.entity.Ingredient;
 import com.hei.prog3.ingredientagain.repository.IngredientRepository;
@@ -11,9 +11,9 @@ import java.util.List;
 
 public class JdbcIngredientRepository implements IngredientRepository {
 
-    private final DataSource dataSource;
+    private final DataSourceConfig dataSource;
 
-    public JdbcIngredientRepository(DataSource dataSource) {
+    public JdbcIngredientRepository(DataSourceConfig dataSource) {
         this.dataSource = dataSource;
     }
 
