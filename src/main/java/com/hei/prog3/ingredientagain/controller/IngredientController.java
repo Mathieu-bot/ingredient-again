@@ -1,8 +1,7 @@
 package com.hei.prog3.ingredientagain.controller;
 
-import com.hei.prog3.ingredientagain.config.DataSource;
 import com.hei.prog3.ingredientagain.entity.Ingredient;
-import com.hei.prog3.ingredientagain.repository.impl.JdbcIngredientRepository;
+import com.hei.prog3.ingredientagain.repository.IngredientRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,11 +13,10 @@ import java.util.List;
 @RequestMapping("/api/ingredients")
 public class IngredientController {
 
-    private final JdbcIngredientRepository repository;
+    private final IngredientRepository repository;
 
-    public IngredientController() {
-        DataSource dataSource = new DataSource();
-        this.repository = new JdbcIngredientRepository(dataSource);
+    public IngredientController(IngredientRepository repository) {
+        this.repository = repository;
     }
 
     @GetMapping
