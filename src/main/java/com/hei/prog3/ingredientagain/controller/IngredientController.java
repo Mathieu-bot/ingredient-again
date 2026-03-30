@@ -4,6 +4,7 @@ import com.hei.prog3.ingredientagain.entity.Ingredient;
 import com.hei.prog3.ingredientagain.repository.IngredientRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +24,11 @@ public class IngredientController {
     public ResponseEntity<List<Ingredient>> getAll() {
         List<Ingredient> ingredients = repository.findAll();
         return ResponseEntity.ok(ingredients);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Ingredient> getById(@PathVariable int id) {
+        Ingredient ingredient = repository.findById(id);
+        return ResponseEntity.ok(ingredient);
     }
 }
