@@ -3,6 +3,7 @@ package com.hei.prog3.ingredientagain.controller;
 import com.hei.prog3.ingredientagain.entity.Ingredient;
 import com.hei.prog3.ingredientagain.entity.StockValue;
 import com.hei.prog3.ingredientagain.entity.Unit;
+import com.hei.prog3.ingredientagain.exception.MissingParameterException;
 import com.hei.prog3.ingredientagain.service.IngredientService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,12 @@ public class IngredientController {
     @GetMapping("/{id}/stock")
     public ResponseEntity<StockValue> getStockValue(
             @PathVariable int id,
-            @RequestParam("at") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant at,
-            @RequestParam("unit") Unit unit) {
+            @RequestParam(value = "at", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant at,
+            @RequestParam(value = "unit", required = false) Unit unit) {
+
+        if (at == null || unit == null) {
+            throw new MissingParameterException();
+        }
 
         StockValue stockValue = service.getStockValueAt(id, at, unit);
         return ResponseEntity.ok(stockValue);
