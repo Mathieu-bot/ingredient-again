@@ -7,4 +7,6 @@ import java.util.List;
 public interface DishRepository {
 
     List<Dish> findAll();
+
+    List<Dish> findAllWithIngredients();
 }
