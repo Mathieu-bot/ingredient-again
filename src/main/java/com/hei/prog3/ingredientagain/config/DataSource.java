@@ -8,6 +8,14 @@ import java.sql.SQLException;
 
 public class DataSource {
 
+    static {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("PostgreSQL JDBC Driver not found", e);
+        }
+    }
+
     private final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
     private final String JDBC_URL = dotenv.get("JDBC_URL");
