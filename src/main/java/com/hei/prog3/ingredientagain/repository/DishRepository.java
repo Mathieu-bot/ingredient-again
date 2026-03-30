@@ -9,4 +9,6 @@ public interface DishRepository {
     List<Dish> findAll();
 
     List<Dish> findAllWithIngredients();
+
+    void updateDishIngredients(int dishId, List<Integer> ingredientIds);
 }
