@@ -119,4 +119,50 @@ public class JdbcDishRepository implements DishRepository {
 
         return dishIngredients;
     }
+
+    @Override
+    public void updateDishIngredients(int dishId, List<Integer> ingredientIds) {
+        String checkSql = "SELECT id FROM dish WHERE id = ?";
+        Connection conn = dataSource.getDBConnection();
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(checkSql);
+            ps.setInt(1, dishId);
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                throw new RuntimeException("Dish not found (id=" + dishId + ")");
+            }
+
+            String deleteSql = "DELETE FROM dish_ingredient WHERE id_dish = ?";
+            PreparedStatement deletePs = conn.prepareStatement(deleteSql);
+            deletePs.setInt(1, dishId);
+            deletePs.executeUpdate();
+
+            if (ingredientIds != null && !ingredientIds.isEmpty()) {
+                String insertSql = "INSERT INTO dish_ingredient (id_dish, id_ingredient, quantity_required, unit) VALUES (?, ?, 1.0, 'KG')";
+                PreparedStatement insertPs = conn.prepareStatement(insertSql);
+
+                for (Integer ingredientId : ingredientIds) {
+                    String checkIngredientSql = "SELECT id FROM ingredient WHERE id = ?";
+                    PreparedStatement checkIngredientPs = conn.prepareStatement(checkIngredientSql);
+                    checkIngredientPs.setInt(1, ingredientId);
+                    ResultSet ingredientRs = checkIngredientPs.executeQuery();
+
+                    if (ingredientRs.next()) {
+                        insertPs.setInt(1, dishId);
+                        insertPs.setInt(2, ingredientId);
+                        insertPs.addBatch();
+                    }
+                }
+
+                insertPs.executeBatch();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            dataSource.close(conn);
+        }
+    }
 }
