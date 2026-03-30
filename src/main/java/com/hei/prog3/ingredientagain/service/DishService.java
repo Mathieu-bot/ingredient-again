@@ -1,6 +1,8 @@
 package com.hei.prog3.ingredientagain.service;
 
+import com.hei.prog3.ingredientagain.dto.DishDTO;
 import com.hei.prog3.ingredientagain.entity.Dish;
+import com.hei.prog3.ingredientagain.mapper.DishMapper;
 import com.hei.prog3.ingredientagain.repository.DishRepository;
 
 import java.util.List;
@@ -13,7 +15,8 @@ public class DishService {
         this.repository = repository;
     }
 
-    public List<Dish> findAll() {
-        return repository.findAllWithIngredients();
+    public List<DishDTO> findAll() {
+        List<Dish> dishes = repository.findAllWithIngredients();
+        return DishMapper.toDTO(dishes);
     }
 }
