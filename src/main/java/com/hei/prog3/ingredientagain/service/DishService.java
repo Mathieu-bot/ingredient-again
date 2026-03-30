@@ -14,6 +14,6 @@ public class DishService {
     }
 
     public List<Dish> findAll() {
-        return repository.findAll();
+        return repository.findAllWithIngredients();
     }
 }
