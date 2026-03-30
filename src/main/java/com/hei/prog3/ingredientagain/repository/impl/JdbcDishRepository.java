@@ -122,15 +122,18 @@ public class JdbcDishRepository implements DishRepository {
 
     @Override
     public void updateDishIngredients(int dishId, List<Integer> ingredientIds) {
-        String checkSql = "SELECT id FROM dish WHERE id = ?";
         Connection conn = dataSource.getDBConnection();
 
         try {
-            PreparedStatement ps = conn.prepareStatement(checkSql);
-            ps.setInt(1, dishId);
-            ResultSet rs = ps.executeQuery();
+            conn.setAutoCommit(false);
+
+            String checkSql = "SELECT id FROM dish WHERE id = ? FOR UPDATE";
+            PreparedStatement checkPs = conn.prepareStatement(checkSql);
+            checkPs.setInt(1, dishId);
+            ResultSet rs = checkPs.executeQuery();
 
             if (!rs.next()) {
+                conn.rollback();
                 throw new RuntimeException("Dish not found (id=" + dishId + ")");
             }
 
@@ -140,28 +143,37 @@ public class JdbcDishRepository implements DishRepository {
             deletePs.executeUpdate();
 
             if (ingredientIds != null && !ingredientIds.isEmpty()) {
-                String insertSql = "INSERT INTO dish_ingredient (id_dish, id_ingredient, quantity_required, unit) VALUES (?, ?, 1.0, 'KG')";
+                String insertSql = """
+                        INSERT INTO dish_ingredient (id_dish, id_ingredient, quantity_required, unit)
+                        SELECT ?, id, 1.0, 'KG'
+                        FROM ingredient
+                        WHERE id = ?
+                        """;
                 PreparedStatement insertPs = conn.prepareStatement(insertSql);
 
                 for (Integer ingredientId : ingredientIds) {
-                    String checkIngredientSql = "SELECT id FROM ingredient WHERE id = ?";
-                    PreparedStatement checkIngredientPs = conn.prepareStatement(checkIngredientSql);
-                    checkIngredientPs.setInt(1, ingredientId);
-                    ResultSet ingredientRs = checkIngredientPs.executeQuery();
-
-                    if (ingredientRs.next()) {
-                        insertPs.setInt(1, dishId);
-                        insertPs.setInt(2, ingredientId);
-                        insertPs.addBatch();
-                    }
+                    insertPs.setInt(1, dishId);
+                    insertPs.setInt(2, ingredientId);
+                    insertPs.addBatch();
                 }
 
                 insertPs.executeBatch();
             }
 
+            conn.commit();
+
         } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException("Rollback failed", ex);
+            }
             throw new RuntimeException(e);
         } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException ignored) {
+            }
             dataSource.close(conn);
         }
     }
