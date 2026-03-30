@@ -1,6 +1,6 @@
 package com.hei.prog3.ingredientagain.controller;
 
-import com.hei.prog3.ingredientagain.entity.Dish;
+import com.hei.prog3.ingredientagain.dto.DishDTO;
 import com.hei.prog3.ingredientagain.service.DishService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +20,8 @@ public class DishController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Dish>> getAll() {
-        List<Dish> dishes = service.findAll();
+    public ResponseEntity<List<DishDTO>> getAll() {
+        List<DishDTO> dishes = service.findAll();
         return ResponseEntity.ok(dishes);
     }
 }
