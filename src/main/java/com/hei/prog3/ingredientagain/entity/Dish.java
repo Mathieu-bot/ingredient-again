@@ -1,5 +1,6 @@
 package com.hei.prog3.ingredientagain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -58,6 +59,7 @@ public class Dish {
         }
     }
 
+    @JsonIgnore
     public Double getDishCost() {
         double totalPrice = 0;
         for (DishIngredient di : dishIngredients) {
@@ -66,6 +68,7 @@ public class Dish {
         return totalPrice;
     }
 
+    @JsonIgnore
     public Double getGrossMargin() {
         if (price == null) {
             throw new IllegalStateException("Price not found, not possible to calculate margin.");
