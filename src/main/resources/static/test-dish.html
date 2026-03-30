@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test PUT /dishes/{id}/ingredients</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { padding: 8px; width: 300px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Test PUT /dishes/{id}/ingredients</h1>
+
+    <div class="form-group">
+        <label>Dish ID :</label>
+        <input type="number" id="dishId" value="1" min="1">
+    </div>
+
+    <div class="form-group">
+        <label>Ingrédients (IDs séparés par virgule) :</label>
+        <input type="text" id="ingredientIds" value="1,2">
+    </div>
+
+    <button onclick="testPut()">Tester PUT</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function testPut() {
+            const dishId = document.getElementById('dishId').value;
+            const ingredientIds = document.getElementById('ingredientIds').value.split(',').map(id => parseInt(id.trim()));
+
+            const requestBody = {
+                ingredients: ingredientIds.map(id => ({ id }))
+            };
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Envoi...';
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/dishes/${dishId}/ingredients`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const text = await response.text();
+                resultDiv.textContent = `Status: ${response.status}\n${text}`;
+            } catch (error) {
+                resultDiv.textContent = `Erreur: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
