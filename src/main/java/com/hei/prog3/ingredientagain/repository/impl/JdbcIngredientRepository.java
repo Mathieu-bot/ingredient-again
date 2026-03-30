@@ -3,6 +3,7 @@ package com.hei.prog3.ingredientagain.repository.impl;
 import com.hei.prog3.ingredientagain.config.DataSourceConfig;
 import com.hei.prog3.ingredientagain.entity.CategoryEnum;
 import com.hei.prog3.ingredientagain.entity.Ingredient;
+import com.hei.prog3.ingredientagain.exception.IngredientNotFoundException;
 import com.hei.prog3.ingredientagain.repository.IngredientRepository;
 
 import java.sql.*;
@@ -55,7 +56,7 @@ public class JdbcIngredientRepository implements IngredientRepository {
                 return mapIngredient(rs);
             }
 
-            throw new RuntimeException("Ingredient not found (id=" + id + ")");
+            throw new IngredientNotFoundException(id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
