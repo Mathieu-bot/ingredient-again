@@ -8,4 +8,5 @@ public interface IngredientRepository {
 
     List<Ingredient> findAll();
     Ingredient findById(int id);
+    Ingredient findByIdWithMovements(int id);
 }
