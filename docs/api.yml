@@ -1,0 +1,274 @@
+openapi: 3.2.0
+info:
+  title: Ingredients API
+  version: 1.0.0
+  description: API for managing restaurant ingredients, dishes and stock movements
+servers:
+  - url: http://localhost:8080/
+
+paths:
+  /ingredients:
+    get:
+      summary: Get all ingredients
+      description: Returns a list of all ingredients with their basic information
+      operationId: getAllIngredients
+      tags:
+        - Ingredients
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ingredient'
+
+  /ingredients/{id}:
+    get:
+      summary: Get ingredient by ID
+      description: Returns a single ingredient by its ID
+      operationId: getIngredientById
+      tags:
+        - Ingredients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ingredient ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+        '404':
+          description: Ingredient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ingredients/{id}/stock:
+    get:
+      summary: Get stock value for an ingredient
+      description: Returns the stock quantity at a specific time, converted to the requested unit
+      operationId: getStockValue
+      tags:
+        - Ingredients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ingredient ID
+        - name: at
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The instant to calculate stock (ISO 8601 format)
+        - name: unit
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [KG, L, PCS]
+          description: The unit to return the stock in
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockValue'
+        '400':
+          description: Missing required parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Ingredient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dishes:
+    get:
+      summary: Get all dishes
+      description: Returns a list of all dishes with their ingredients and prices
+      operationId: getAllDishes
+      tags:
+        - Dishes
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dish'
+
+  /dishes/{id}/ingredients:
+    put:
+      summary: Update dish ingredients
+      description: Replaces all ingredients of a dish with the specified ingredients
+      operationId: updateDishIngredients
+      tags:
+        - Dishes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The dish ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDishIngredientsRequest'
+      responses:
+        '200':
+          description: Ingredients updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Ingredients updated successfully
+        '400':
+          description: Missing request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Dish not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          description: Ingredient name
+        price:
+          type: number
+          format: double
+          description: Price per unit
+        category:
+          type: string
+          enum: [VEGETABLE, ANIMAL, MARINE, DAIRY, OTHER]
+          description: Ingredient category
+        quantity:
+          type: number
+          format: double
+          description: Current quantity (optional)
+        stockMovementList:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockMovement'
+          description: List of stock movements
+
+    Dish:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          description: Dish name
+        dishType:
+          type: string
+          enum: [START, MAIN, DESSERT]
+          description: Type of dish
+        price:
+          type: number
+          format: double
+          description: Selling price
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientDTO'
+          description: List of ingredients with quantities
+
+    IngredientDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+          format: double
+
+    StockValue:
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: double
+          description: Stock quantity
+        unit:
+          type: string
+          enum: [KG, L, PCS]
+          description: Unit of measurement
+
+    StockMovement:
+      type: object
+      properties:
+        id:
+          type: integer
+        value:
+          $ref: '#/components/schemas/StockValue'
+        type:
+          type: string
+          enum: [IN, OUT]
+          description: Movement type (IN = stock entry, OUT = stock exit)
+        creationDateTime:
+          type: string
+          format: date-time
+
+    UpdateDishIngredientsRequest:
+      type: object
+      properties:
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientReference'
+          description: List of ingredient references
+
+    IngredientReference:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Ingredient ID
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
